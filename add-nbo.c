@@ -1,29 +1,37 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <arpa/inet.h>
 
+uint32_t file_read(char* fileName){
+    uint32_t ret;
+    FILE* file = fopen(fileName, "rb");
+    if(fread(&ret, 1, sizeof(uint32_t), file) == 0){
+        fclose(file);
+        printf("Error\n");
+        exit(1);
+    }
+    fclose(file);
+
+    return ret;
+}
+
 int main(int argc, char* argv[]) {
     if(argc != 3) {
-        printf("Usage: ./add-nbo <file1> <file2>\n");
+        printf("Usage: %s <file1> <file2>\n", argv[0]);
         return 0;
     }
+    uint32_t ret, ret1, ret2;
 
-    FILE * file1 = fopen(argv[1], "rb");
-    FILE * file2 = fopen(argv[2], "rb");
+    ret1 = file_read(argv[1]);
+    ret2 = file_read(argv[2]);
 
-    uint32_t buf, buf2, temp, temp2,ret;
+    ret1 = ntohl(ret1);
+    ret2 = ntohl(ret2);
 
-    fread(&buf, sizeof(uint32_t), 1, file1);
-    fread(&buf2, sizeof(uint32_t), 1, file2);
+    ret = ret1 + ret2;
 
-    temp = htonl(buf);
-    temp2 = htonl(buf2);
-    ret = temp + temp2;
-
-    printf("%d(0x%2x) + %d(0x%2x) = %d(0x%2x)\n", temp, temp, temp2, temp2, ret, ret);
-
-    fclose(file2);
-    fclose(file1);
+    printf("%d(0x%2x) + %d(0x%2x) = %d(0x%2x)\n", ret1, ret1, ret2, ret2, ret, ret);
 
     return 0;
 }
